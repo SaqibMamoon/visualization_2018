@@ -1,0 +1,37 @@
+BCCN WeatherApp2018 Visualization toolbox
+Main Workflow and quideline
+
+
+User Interface: Our decision was creating a **web page** with interactive plots and visualization tools (further specification is still needed). This choice was reasoned by:
+
+  1.) creating an android app needs a longer timescale to make it flexible
+  2.) creating a GUI with a python package may look sketchy and prototype-like which would go against the main point of data visualization
+
+What we definitely would like to achieve: A map where the GPS coordinate data is clearly mapped with any data collected from #analysis_2018
+
+Ideas:
+
+  1.) GPS data, station locations, translating from ID to map data
+  2.) Temperature data, or any other raw data visualization on gived date from historical data
+  3.) Analyzed data visualization, heatmap of prediction accuracy would be nice
+  4.) Forecast data visualization
+  5.) clickable map, interactivity
+
+Workflow:
+
+  1. plan the toolset, packages, toolboxes, compatibility with web design
+  2. MAP
+  3. getting example GPS data from actual DWD file and visualize it
+  4. using colorcode, legend, whatsoever (“decoration”)
+  5. “interactivity”, make it clickable
+  6. … (further details depend on analysis and other parts)
+  7. web design part (last but not least)
+  
+Toolboxes found:
+
+  1.) Folium + GeoPandas (CHOSEN)
+    Great for interactive map data which we can then add to a webpage. (Folium can handle GeoPandas data format dynamically)
+    http://folium.readthedocs.io/en/latest/
+  2.) mpld3 (CHOSEN)
+    For every other kind of data visualization and plotting, creates interactive embeddable plots
+    http://mpld3.github.io/
