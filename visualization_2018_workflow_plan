@@ -2,7 +2,7 @@ BCCN WeatherApp2018 Visualization toolbox
 Main Workflow and quideline
 
 
-**User Interface**: Our decision was creating a **web page** with interactive plots and visualization tools (further specification is still needed). This choice was reasoned by:
+__User Interface__: Our decision was creating a **web page** with interactive plots and visualization tools (further specification is still needed). This choice was reasoned by:
 
 1.) creating an android app needs a longer timescale to make it flexible
 2.) creating a GUI with a python package may look sketchy and prototype-like which would go against the main point of data visualization
