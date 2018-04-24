@@ -27,3 +27,11 @@ Workflow:
   6. … (further details depend on analysis and other parts)
   7. web design part (last but not least)
   
+Toolboxes found:
+
+  1.) Folium + GeoPandas (CHOSEN)
+    Great for interactive map data which we can then add to a webpage. (Folium can handle GeoPandas data format dynamically)
+    http://folium.readthedocs.io/en/latest/
+  2.) mpld3 (CHOSEN)
+    For every other kind of data visualization and plotting, creates interactive embeddable plots
+    http://mpld3.github.io/
