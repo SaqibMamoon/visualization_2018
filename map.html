@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script>L_PREFER_CANVAS = false; L_NO_TOUCH = false; L_DISABLE_3D = false;</script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.2.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+    <link rel="stylesheet" href="https://rawgit.com/python-visualization/folium/master/folium/templates/leaflet.awesome.rotate.css" />
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    
+            <style> #map_19ffe016f27f45a6be213cf2b4ffa0d1 {
+                position : relative;
+                width : 100.0%;
+                height: 100.0%;
+                left: 0.0%;
+                top: 0.0%;
+                }
+            </style>
+        
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_19ffe016f27f45a6be213cf2b4ffa0d1" ></div>
+        
+</body>
+<script>    
+    
+
+            
+                var bounds = null;
+            
+
+            var map_19ffe016f27f45a6be213cf2b4ffa0d1 = L.map(
+                                  'map_19ffe016f27f45a6be213cf2b4ffa0d1',
+                                  {center: [51,10.5],
+                                  zoom: 6.4,
+                                  maxBounds: bounds,
+                                  layers: [],
+                                  worldCopyJump: false,
+                                  crs: L.CRS.EPSG3857
+                                 });
+            
+        
+    
+            var tile_layer_a2c5815178924705a96d0756109a3bb5 = L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+  "attribution": null,
+  "detectRetina": false,
+  "maxZoom": 18,
+  "minZoom": 1,
+  "noWrap": false,
+  "subdomains": "abc"
+}
+                ).addTo(map_19ffe016f27f45a6be213cf2b4ffa0d1);
+        
+    
+
+            var marker_369a53bddf6b4dd0a2ae89de0813ade5 = L.marker(
+                [52.5162,13.3777],
+                {
+                    icon: new L.Icon.Default()
+                    }
+                )
+                .addTo(map_19ffe016f27f45a6be213cf2b4ffa0d1);
+            
+    
+
+                var icon_046020ded7644f02bc0726209a52c072 = L.AwesomeMarkers.icon({
+                    icon: 'cloud',
+                    iconColor: 'white',
+                    markerColor: 'blue',
+                    prefix: 'glyphicon',
+                    extraClasses: 'fa-rotate-0'
+                    });
+                marker_369a53bddf6b4dd0a2ae89de0813ade5.setIcon(icon_046020ded7644f02bc0726209a52c072);
+            
+    
+            var popup_c1ad1bbf72764b74977cb4ffe831b586 = L.popup({maxWidth: '300'});
+
+            
+                var html_c5dbcb52f5b94aafb5823eec72e327f2 = $('<div id="html_c5dbcb52f5b94aafb5823eec72e327f2" style="width: 100.0%; height: 100.0%;">Brandenburger Tor</div>')[0];
+                popup_c1ad1bbf72764b74977cb4ffe831b586.setContent(html_c5dbcb52f5b94aafb5823eec72e327f2);
+            
+
+            marker_369a53bddf6b4dd0a2ae89de0813ade5.bindPopup(popup_c1ad1bbf72764b74977cb4ffe831b586);
+
+            
+        
+    
+
+            var marker_67f822407e324c87959cb0fe3a7de1c9 = L.marker(
+                [48.1371,11.5761],
+                {
+                    icon: new L.Icon.Default()
+                    }
+                )
+                .addTo(map_19ffe016f27f45a6be213cf2b4ffa0d1);
+            
+    
+
+                var icon_ae775b9af2b74064814b6dbc26e89bfa = L.AwesomeMarkers.icon({
+                    icon: 'certificate',
+                    iconColor: 'white',
+                    markerColor: 'green',
+                    prefix: 'glyphicon',
+                    extraClasses: 'fa-rotate-0'
+                    });
+                marker_67f822407e324c87959cb0fe3a7de1c9.setIcon(icon_ae775b9af2b74064814b6dbc26e89bfa);
+            
+    
+            var popup_eed5629099bf4981b37120b555bb39da = L.popup({maxWidth: '300'});
+
+            
+                var html_19431e04d4964296beac42cc630dece8 = $('<div id="html_19431e04d4964296beac42cc630dece8" style="width: 100.0%; height: 100.0%;">München</div>')[0];
+                popup_eed5629099bf4981b37120b555bb39da.setContent(html_19431e04d4964296beac42cc630dece8);
+            
+
+            marker_67f822407e324c87959cb0fe3a7de1c9.bindPopup(popup_eed5629099bf4981b37120b555bb39da);
+
+            
+        
+    
+
+            var marker_3a46d91a750f4b07a47d01713eba2509 = L.marker(
+                [50.9,6.9],
+                {
+                    icon: new L.Icon.Default()
+                    }
+                )
+                .addTo(map_19ffe016f27f45a6be213cf2b4ffa0d1);
+            
+    
+
+                var icon_5d1b03eeb2e14ea291a6ea92895f543b = L.AwesomeMarkers.icon({
+                    icon: 'tint',
+                    iconColor: 'white',
+                    markerColor: 'red',
+                    prefix: 'glyphicon',
+                    extraClasses: 'fa-rotate-0'
+                    });
+                marker_3a46d91a750f4b07a47d01713eba2509.setIcon(icon_5d1b03eeb2e14ea291a6ea92895f543b);
+            
+    
+            var popup_0bcf48af90d94d468a54594155d7fd01 = L.popup({maxWidth: '300'});
+
+            
+                var html_0ce4c3ae93654fdf85419dcce705a770 = $('<div id="html_0ce4c3ae93654fdf85419dcce705a770" style="width: 100.0%; height: 100.0%;">Some Other Location</div>')[0];
+                popup_0bcf48af90d94d468a54594155d7fd01.setContent(html_0ce4c3ae93654fdf85419dcce705a770);
+            
+
+            marker_3a46d91a750f4b07a47d01713eba2509.bindPopup(popup_0bcf48af90d94d468a54594155d7fd01);
+
+            
+        
+</script>
