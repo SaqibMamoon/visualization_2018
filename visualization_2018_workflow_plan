@@ -35,3 +35,11 @@ Toolboxes found:
   2.) mpld3 (CHOSEN)
     For every other kind of data visualization and plotting, creates interactive embeddable plots
     http://mpld3.github.io/
+
+
+What can be done with Folium:
+- clickable markers (vincent/vega markers) : https://folium.readthedocs.io/en/latest/quickstart.html#vincent-vega-markers
+- time laps (HeatMapWithTime)
+
+Problems with Folium:
+- No outside interaction (maybe try to use a GUI, Bokeh or ipywidgets)
