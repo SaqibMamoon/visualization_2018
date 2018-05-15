@@ -35,7 +35,7 @@ fileorigin.close()
 
 #Create Map
 germany_middle = [51, 10.5]
-map_1 = folium.Map(location=germany_middle,
+map_1 = folium.Map(location=germany_middle, 
     zoom_start=6.4)
 
 #create callback string for leaflet - FastMarkerCluster
