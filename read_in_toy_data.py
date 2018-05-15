@@ -28,7 +28,8 @@ Stations = {}
 for lineid, line in enumerate(fileorigin):
     line_vec = list(filter(None,line.split(' ')))
     Stations[line_vec[0]] = Station(line_vec[0],line_vec[1], line_vec[2], line_vec[3],
-                            line_vec[4], line_vec[5], line_vec[6], line_vec[7])
+                            line_vec[4], line_vec[5], line_vec[6:-1], line_vec[-1])
+    print(Stations[line_vec[0]].name)
 print("number of stations loaded: ",len(Stations))
 fileorigin.close()
 
