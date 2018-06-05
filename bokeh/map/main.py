@@ -7,7 +7,7 @@ import bokeh.plotting as plt
 from os.path import dirname, join
 
 
-# Read the html file for the description 
+# Read the html file for the description
 desc = bk.models.Div(text=open(join(dirname(__file__), "title.html")).read(), width=800)
 
 
@@ -30,8 +30,14 @@ df_ger = coor_to_web_mercator(['ger_border','ger_border'],germany_lon, germany_l
 
 x_range,y_range = ((df_ger['x'][0],df_ger['x'][1]), (df_ger['y'][0],df_ger['y'][1]))
 
-base_map = plt.figure(tools='pan, wheel_zoom', x_range=x_range, y_range=y_range)
+#Creating a TOOLs vector to dinamically control the included tooltips
+TOOLS='pan,wheel_zoom,box_select,lasso_select,reset'
+
+
+base_map = plt.figure(tools=TOOLS, x_range=x_range, y_range=y_range)
 base_map.axis.visible = False
+base_map.select(bk.models.BoxSelectTool).select_every_mousemove = False
+base_map.select(bk.models.LassoSelectTool).select_every_mousemove = False
 
 url = 'http://a.basemaps.cartocdn.com/light_all/{Z}/{X}/{Y}.png'
 attribution = "Tiles by Carto, under CC BY 3.0. Data by OSM, under ODbL"
@@ -89,39 +95,67 @@ region_names = df_stations["region"][1:].value_counts().index.tolist()
 
 # Add dot plot on top of the base map to represent stations (initially empty)
 psource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
-base_map.circle('x', 'y', source=psource, color='red', size=6)
+tabsource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
+statcircles = base_map.circle('x', 'y', source=psource, color='red', size=6)
 stat_hover = bk.models.HoverTool()
-stat_hover.tooltips = [('Name of station:', '@name')]
+stat_hover.tooltips = [('Station name', '@name')]
 base_map.add_tools(stat_hover)
 
 # Create the dropdown menu for different regions
 stat_menu= bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'])
+columns = [
+        bk.models.widgets.TableColumn(field="name", title="Station name"),
+        bk.models.widgets.TableColumn(field="x", title="x"),
+        bk.models.widgets.TableColumn(field="y", title="y")
+    ]
+stat_table = bk.models.widgets.DataTable(source=tabsource, columns=columns, width=400, height=280)
 
 # Define functions for selecting the region from menu and updating the dot plot
 def select_stations():
-    name= stat_menu.value
+    name = stat_menu.value
     if name == 'All':
-        df =df_stations
+        df = df_stations
     elif name == 'None':
         df = pd.DataFrame(columns=['name','x','y'])
     else:
         df = df_stations.loc[df_stations['region'] == name]
     return df
 
-def update_stations(attr,old,new): 
+def update_stations(attr,old,new):
     df = select_stations()
     psource.data = dict(
         x=df['x'],
         y=df['y'],
         name = df['name']
 )
-# Update dot plots on map  
-stat_menu.on_change('value',update_stations) 
+
+def update_when_selected(attr, old, new):
+    inds = np.array(new['1d']['indices'])
+    #For now I just print the coordinates of selected stations
+    #in prompt, later in a table widget
+    #Something is not good with this, I don't know hot to get the proper data
+    stlns = np.array(psource.data['x'])
+    stlts = np.array(psource.data['y'])
+    stnames = []
+    refnames = np.array(psource.data['name'])
+    for i in inds:
+        print(refnames[i])
+        stnames.append(refnames[i])
+        #print(stlns[i],' ',stlts[i])
+    tabsource.data = dict(name=stnames,
+                            x=stlns,
+                            y=stlts)
+
+
+# Update dot plots on map
+stat_menu.on_change('value',update_stations)
 
 # -----------------------------------------------------------------------------------------------------
 # END OF STATIONS PART
 # -----------------------------------------------------------------------------------------------------
 
 # Save layout (map, widgets, description text etc.) and add to current document for successful update of page
-layout = bk.layouts.layout(desc, [stat_menu, base_map])
+#layout = bk.layouts.layout(desc, [stat_menu, stat_table, base_map])
+layout = bk.layouts.row(bk.layouts.column(stat_menu, stat_table), bk.layouts.column(base_map))
 bk.io.curdoc().add_root(layout)
+statcircles.data_source.on_change('selected', update_when_selected)
