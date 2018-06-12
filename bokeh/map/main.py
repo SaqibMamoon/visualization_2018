@@ -95,12 +95,17 @@ region_names = df_stations["region"][1:].value_counts().index.tolist()
 
 # Add dot plot on top of the base map to represent stations (initially empty)
 psource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
+#full_tabsource = bk.models.ColumnDataSource(data=dict(name=stationnames, x=stat_lats, y=stat_lons))
 tabsource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
 statcircles = base_map.circle('x', 'y', source=psource, color='red', size=6)
 stat_hover = bk.models.HoverTool()
 stat_hover.tooltips = [('Station name', '@name')]
 base_map.add_tools(stat_hover)
 
+#Creating a button for info vis in new table
+show_button = bk.models.widgets.Button(label="Show information of selection", button_type="success")
+mainplot = plt.figure(plot_height=400, plot_width=400, title="my sine wave",
+                tools="crosshair,pan,reset,save,wheel_zoom")
 # Create the dropdown menu for different regions
 stat_menu= bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'])
 columns = [
@@ -109,6 +114,11 @@ columns = [
         bk.models.widgets.TableColumn(field="y", title="y")
     ]
 stat_table = bk.models.widgets.DataTable(source=tabsource, columns=columns, width=400, height=280)
+
+def show_info():
+    source = bk.models.ColumnDataSource(data=dict(x = tabsource.data['x'], y = tabsource.data['y']))
+    # Set up plot
+    mainplot.scatter('x', 'y', source=source)#source)
 
 # Define functions for selecting the region from menu and updating the dot plot
 def select_stations():
@@ -124,22 +134,32 @@ def select_stations():
 def update_stations(attr,old,new):
     df = select_stations()
     psource.data = dict(
-        x=df['x'],
-        y=df['y'],
-        name = df['name']
+        x=df['x'].tolist(),
+        y=df['y'].tolist(),
+        name = df['name'].tolist()
 )
+    tabsource.data = psource.data
 
 def update_when_selected(attr, old, new):
     inds = np.array(new['1d']['indices'])
     #For now I just print the coordinates of selected stations
     #in prompt, later in a table widget
     #Something is not good with this, I don't know hot to get the proper data
-    stlns = np.array(psource.data['x'])
-    stlts = np.array(psource.data['y'])
+    if type(psource.data['x'])==list:
+        ref_stlns = psource.data['x']
+        ref_stlts = psource.data['y']
+        refnames = psource.data['name']
+    else:
+        ref_stlns = psource.data['x'].tolist()
+        ref_stlts = psource.data['y'].tolist()
+        refnames = psource.data['name'].tolist()
     stnames = []
-    refnames = np.array(psource.data['name'])
+    stlns = []
+    stlts = []
     for i in inds:
-        print(refnames[i])
+        #print(refnames[i])
+        stlns.append(ref_stlns[i])
+        stlts.append(ref_stlts[i])
         stnames.append(refnames[i])
         #print(stlns[i],' ',stlts[i])
     tabsource.data = dict(name=stnames,
@@ -148,14 +168,14 @@ def update_when_selected(attr, old, new):
 
 
 # Update dot plots on map
+show_button.on_click(show_info)
 stat_menu.on_change('value',update_stations)
-
+statcircles.data_source.on_change('selected', update_when_selected)
 # -----------------------------------------------------------------------------------------------------
 # END OF STATIONS PART
 # -----------------------------------------------------------------------------------------------------
 
 # Save layout (map, widgets, description text etc.) and add to current document for successful update of page
 #layout = bk.layouts.layout(desc, [stat_menu, stat_table, base_map])
-layout = bk.layouts.row(bk.layouts.column(stat_menu, stat_table), bk.layouts.column(base_map))
+layout = bk.layouts.row(bk.layouts.column(stat_menu, stat_table, mainplot, show_button), bk.layouts.column(base_map))
 bk.io.curdoc().add_root(layout)
-statcircles.data_source.on_change('selected', update_when_selected)
