@@ -109,6 +109,7 @@ base_map.add_tools(taptool)
 show_button = bk.models.widgets.Button(label="Show information of selection", button_type="success")
 mainplot = plt.figure(plot_height=400, plot_width=400, title="my sine wave",
                 tools="crosshair,pan,reset,save,wheel_zoom")
+mainplot.scatter('x', 'y', source=tabsource, name = 'line1')
 # Create the dropdown menu for different regions
 stat_menu= bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'])
 columns = [
@@ -122,8 +123,7 @@ def show_info(attr,old,new):
     #x = statcircles.data_source['x']
     #y = statcircles.data_source['y']
     source = bk.models.ColumnDataSource(data=dict(x = tabsource.data['x'], y = tabsource.data['y']))
-    # Set up plot
-    mainplot.scatter('x', 'y', source=source)#source)
+    #source)
 
 # Define functions for selecting the region from menu and updating the dot plot
 def select_stations():
@@ -143,7 +143,7 @@ def update_stations(attr,old,new):
         y=df['y'].tolist(),
         name = df['name'].tolist()
 )
-    tabsource.data = psource.data
+    tabsource.data.update(psource.data)
 
 def update_when_selected(attr, old, new):
     inds = np.array(new['1d']['indices'])
@@ -167,16 +167,14 @@ def update_when_selected(attr, old, new):
         stlts.append(ref_stlts[i])
         stnames.append(refnames[i])
         #print(stlns[i],' ',stlts[i])
-    tabsource.data = dict(name=stnames,
-                            x=stlns,
-                            y=stlts)
+    tabsource.data.update(dict(name=stnames,x=stlns,y=stlts))
 
 
 # Update dot plots on map
-show_button.on_click(show_info)
+#show_button.on_click(show_info)
 stat_menu.on_change('value',update_stations)
 statcircles.data_source.on_change('selected', update_when_selected)
-statcircles.data_source.on_change('selected', show_info)
+#statcircles.data_source.on_change('selected', show_info)
 # -----------------------------------------------------------------------------------------------------
 # END OF STATIONS PART
 # -----------------------------------------------------------------------------------------------------
