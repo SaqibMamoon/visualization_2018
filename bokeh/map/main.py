@@ -102,6 +102,9 @@ stat_hover = bk.models.HoverTool()
 stat_hover.tooltips = [('Station name', '@name')]
 base_map.add_tools(stat_hover)
 
+taptool = bk.models.TapTool()
+base_map.add_tools(taptool)
+
 #Creating a button for info vis in new table
 show_button = bk.models.widgets.Button(label="Show information of selection", button_type="success")
 mainplot = plt.figure(plot_height=400, plot_width=400, title="my sine wave",
@@ -115,7 +118,9 @@ columns = [
     ]
 stat_table = bk.models.widgets.DataTable(source=tabsource, columns=columns, width=400, height=280)
 
-def show_info():
+def show_info(attr,old,new):
+    #x = statcircles.data_source['x']
+    #y = statcircles.data_source['y']
     source = bk.models.ColumnDataSource(data=dict(x = tabsource.data['x'], y = tabsource.data['y']))
     # Set up plot
     mainplot.scatter('x', 'y', source=source)#source)
@@ -171,6 +176,7 @@ def update_when_selected(attr, old, new):
 show_button.on_click(show_info)
 stat_menu.on_change('value',update_stations)
 statcircles.data_source.on_change('selected', update_when_selected)
+statcircles.data_source.on_change('selected', show_info)
 # -----------------------------------------------------------------------------------------------------
 # END OF STATIONS PART
 # -----------------------------------------------------------------------------------------------------
