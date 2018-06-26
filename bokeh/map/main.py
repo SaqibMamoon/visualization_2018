@@ -45,10 +45,6 @@ attribution = "Tiles by Carto, under CC BY 3.0. Data by OSM, under ODbL"
 base_map.add_tile(bk.models.WMTSTileSource(url=url, attribution=attribution))
 base_map.sizing_mode = 'scale_both'
 
-# Add taptool for selecting points on map
-taptool = bk.models.TapTool()
-base_map.add_tools(taptool)
-
 # ----------------------------------------------------------------------------------------------------
 #  STATIONS PART
 # ----------------------------------------------------------------------------------------------------
@@ -68,16 +64,17 @@ class Station:
         return np.array([self.geobr, self.geola]).astype('float')
 
 #read in toy data (all stations in germany)
-filename = 'KL_Tageswerte_Beschreibung_Stationen0.txt'
-fileorigin = open(filename, 'r')
+filename = 'KL_Tageswerte_Beschreibung_Stationen.txt'
+fileorigin = open(filename, 'r', encoding = 'cp1250')
 num_of_stations = 100
 partial_read_in = False
 Stations = {}
 
 for lineid, line in enumerate(fileorigin):
-    line_vec = list(filter(None,line.split(' ')))
-    Stations[line_vec[0]] = Station(line_vec[0],line_vec[1], line_vec[2], line_vec[3],
-                            line_vec[4], line_vec[5], line_vec[6:-1], line_vec[-1])
+    if lineid>2:
+        line_vec = list(filter(None,line.split(' ')))
+        Stations[line_vec[0]] = Station(line_vec[0],line_vec[1], line_vec[2], line_vec[3],
+                                line_vec[4], line_vec[5], line_vec[6:-2], ''.join(line_vec[-2:-1]))
 fileorigin.close()
 
 stationnames = []
@@ -85,7 +82,7 @@ stat_lats = []
 stat_lons = []
 stationregions =[]
 for k, v in Stations.items():
-    stationnames.append(v.name)
+    stationnames.append(' '.join(v.name))
     stat_lats.append(float(v.geobr))
     stat_lons.append(float(v.geola))
     stationregions.append(v.land)
@@ -94,27 +91,29 @@ for k, v in Stations.items():
 df_stations= coor_to_web_mercator(stationnames,np.array(stat_lons),np.array(stat_lats))
 df_stations["region"] = stationregions
 df_stations['region'] = [r.replace('\n', '') for r in df_stations['region']]
+print(df_stations)
 region_names = df_stations["region"][1:].value_counts().index.tolist()
-
+print(region_names)
 
 # Add dot plot on top of the base map to represent stations (initially empty)
 psource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
+#full_tabsource = bk.models.ColumnDataSource(data=dict(name=stationnames, x=stat_lats, y=stat_lons))
 tabsource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
 statcircles = base_map.circle('x', 'y', source=psource, color='red', size=6)
 stat_hover = bk.models.HoverTool()
 stat_hover.tooltips = [('Station name', '@name')]
 base_map.add_tools(stat_hover)
 
+taptool = bk.models.TapTool()
+base_map.add_tools(taptool)
 
-#Creating the plot layout 
-mainplot = plt.figure(plot_height=400, plot_width=400, title="station statistics",
+#Creating a button for info vis in new table
+show_button = bk.models.widgets.Button(label="Show information of selection", button_type="success")
+mainplot = plt.figure(plot_height=400, plot_width=400, title="main plot",
                 tools="crosshair,pan,reset,save,wheel_zoom")
 mainplot.scatter('x', 'y', source=tabsource, name = 'line1')
-
 # Create the dropdown menu for different regions
 stat_menu= bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'])
-
-# Create the table to display station information
 columns = [
         bk.models.widgets.TableColumn(field="name", title="Station name"),
         bk.models.widgets.TableColumn(field="x", title="x"),
@@ -122,9 +121,11 @@ columns = [
     ]
 stat_table = bk.models.widgets.DataTable(source=tabsource, columns=columns, width=400, height=280)
 
-#def show_info(attr,old,new):
-    #source = bk.models.ColumnDataSource(data=dict(x = tabsource.data['x'], y = tabsource.data['y']))
-
+def show_info(attr,old,new):
+    #x = statcircles.data_source['x']
+    #y = statcircles.data_source['y']
+    source = bk.models.ColumnDataSource(data=dict(x = tabsource.data['x'], y = tabsource.data['y']))
+    #source)
 
 # Define functions for selecting the region from menu and updating the dot plot
 def select_stations():
@@ -148,6 +149,9 @@ def update_stations(attr,old,new):
 
 def update_when_selected(attr, old, new):
     inds = np.array(new['1d']['indices'])
+    #For now I just print the coordinates of selected stations
+    #in prompt, later in a table widget
+    #Something is not good with this, I don't know hot to get the proper data
     if type(psource.data['x'])==list:
         ref_stlns = psource.data['x']
         ref_stlts = psource.data['y']
@@ -160,17 +164,17 @@ def update_when_selected(attr, old, new):
     stlns = []
     stlts = []
     for i in inds:
+        #print(refnames[i])
         stlns.append(ref_stlns[i])
         stlts.append(ref_stlts[i])
         stnames.append(refnames[i])
+        #print(stlns[i],' ',stlts[i])
     tabsource.data.update(dict(name=stnames,x=stlns,y=stlts))
 
 
-# Update dots on map with dropdown menu selection
-
+# Update dot plots on map
+#show_button.on_click(show_info)
 stat_menu.on_change('value',update_stations)
-
-# Update plot and table upon station selection
 statcircles.data_source.on_change('selected', update_when_selected)
 #statcircles.data_source.on_change('selected', show_info)
 # -----------------------------------------------------------------------------------------------------
@@ -178,5 +182,6 @@ statcircles.data_source.on_change('selected', update_when_selected)
 # -----------------------------------------------------------------------------------------------------
 
 # Save layout (map, widgets, description text etc.) and add to current document for successful update of page
-layout = bk.layouts.row(bk.layouts.column(stat_menu, stat_table, mainplot), bk.layouts.column(base_map))
+#layout = bk.layouts.layout(desc, [stat_menu, stat_table, base_map])
+layout = bk.layouts.row(bk.layouts.column(stat_menu, stat_table, mainplot, show_button), bk.layouts.column(base_map))
 bk.io.curdoc().add_root(layout)
