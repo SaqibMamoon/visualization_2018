@@ -1,3 +1,5 @@
+
+
 import geopandas as gpd
 import os
 import pandas as pd
@@ -91,9 +93,6 @@ for k, v in Stations.items():
 df_stations= coor_to_web_mercator(stationnames,np.array(stat_lons),np.array(stat_lats))
 df_stations["region"] = stationregions
 df_stations['region'] = [r.replace('\n', '') for r in df_stations['region']]
-print(df_stations)
-region_names = df_stations["region"][1:].value_counts().index.tolist()
-print(region_names)
 
 # Add dot plot on top of the base map to represent stations (initially empty)
 psource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
@@ -108,6 +107,8 @@ taptool = bk.models.TapTool()
 base_map.add_tools(taptool)
 
 #Creating a button for info vis in new table
+
+
 button_labels = ["Temperature", "Humidity", "Rain", "Unicorns"]
 button_group = bk.models.widgets.RadioButtonGroup(labels=button_labels, active=0)
 #Creating the main plot for visualization
@@ -116,13 +117,19 @@ mainplot = plt.figure(title="main plot",#plot_height=400, plot_width=400, title=
 mainplot_2 = plt.figure(title="main plot 2",
                 tools="crosshair,pan,reset,save,wheel_zoom")
 mainplot.scatter('x', 'y', source=tabsource, name = 'line1')
+
 # Create the dropdown menu for different regions
+
 stat_menu = bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'], width = 200)
 stat_menu_2 = bk.models.widgets.Select(title="Something else -- Select ...", value="None",options=['All']+region_names+['None'], width = 200)
 # Create sliders
 slider_start = bk.models.widgets.Slider(start=1900, end=2018, value=1, step=1, title="Start year of historical data:", width = 200)
 slider_end = bk.models.widgets.Slider(start=1900, end=2018, value=1, step=1, title="End year of historical data:", width=200)
 
+
+city_names = ['Berlin','Hamburg','Munich','Cologne','Frankfurt am Main']
+
+stat_menu= bk.models.widgets.Select(title="Stations -- Select a city", value="None",options=city_names+['None'])
 columns = [
         bk.models.widgets.TableColumn(field="name", title="Station name"),
         bk.models.widgets.TableColumn(field="x", title="x"),
@@ -139,12 +146,20 @@ def show_info(attr,old,new):
 # Define functions for selecting the region from menu and updating the dot plot
 def select_stations():
     name = stat_menu.value
+
+    if name == 'Frankfurt am Main':
+        name = "Frankfurt/Main"
+    elif name == 'Munich':
+        name = 'M' + chr(252) + 'nchen'
+    elif name == 'Cologne':
+        name = 'K'+ chr(246) + 'ln'
+
     if name == 'All':
         df = df_stations
     elif name == 'None':
         df = pd.DataFrame(columns=['name','x','y'])
     else:
-        df = df_stations.loc[df_stations['region'] == name]
+        df = df_stations.loc[df_stations['name'].str.contains(name,regex=False)]
     return df
 
 def update_stations(attr,old,new):
@@ -161,6 +176,8 @@ def update_when_selected(attr, old, new):
     #For now I just print the coordinates of selected stations
     #in prompt, later in a table widget
     #Something is not good with this, I don't know hot to get the proper data
+
+
     if type(psource.data['x'])==list:
         ref_stlns = psource.data['x']
         ref_stlts = psource.data['y']
@@ -192,6 +209,7 @@ statcircles.data_source.on_change('selected', update_when_selected)
 
 # Save layout (map, widgets, description text etc.) and add to current document for successful update of page
 
+
 #layout = bk.layouts.layout(desc, [stat_menu, stat_table, base_map])
 #child_1 = [bk.layouts.widgetbox([desc,stat_menu,stat_table], sizing_mode='stretch_both'),bk.layouts.Spacer(height = 10),button_group,mainplot]
 
@@ -205,6 +223,5 @@ row_desc = bk.layouts.row([desc], sizing_mode=MODE)
 widgets = bk.layouts.column([stat_menu,stat_menu_2,slider_start, slider_end, button_group], sizing_mode=MODE)
 row_show = bk.layouts.row([widgets, base_map, mainplot, mainplot_2],sizing_mode=MODE)
 layout = bk.layouts.column([row_desc, row_show], sizing_mode = MODE)
-
 
 bk.io.curdoc().add_root(layout)
