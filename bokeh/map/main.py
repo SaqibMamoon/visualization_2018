@@ -120,6 +120,9 @@ mainplot.scatter('x', 'y', source=tabsource, name = 'line1')
 
 # Create the dropdown menu for different regions
 
+region_names = df_stations["region"][1:].value_counts().index.tolist()
+
+
 stat_menu = bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'], width = 200)
 stat_menu_2 = bk.models.widgets.Select(title="Something else -- Select ...", value="None",options=['All']+region_names+['None'], width = 200)
 # Create sliders
