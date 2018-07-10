@@ -183,5 +183,5 @@ statcircles.data_source.on_change('selected', update_when_selected)
 
 # Save layout (map, widgets, description text etc.) and add to current document for successful update of page
 #layout = bk.layouts.layout(desc, [stat_menu, stat_table, base_map])
-layout = bk.layouts.row(bk.layouts.column(stat_menu, stat_table, mainplot, show_button), bk.layouts.column(base_map))
+layout = bk.layouts.row(bk.layouts.column(desc,stat_menu, stat_table, mainplot, show_button), bk.layouts.column(base_map))
 bk.io.curdoc().add_root(layout)
