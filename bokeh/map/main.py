@@ -45,7 +45,7 @@ url = 'http://a.basemaps.cartocdn.com/light_all/{Z}/{X}/{Y}.png'
 attribution = "Tiles by Carto, under CC BY 3.0. Data by OSM, under ODbL"
 
 base_map.add_tile(bk.models.WMTSTileSource(url=url, attribution=attribution))
-base_map.sizing_mode = 'scale_both'
+#base_map.sizing_mode = 'scale_both'
 
 # ----------------------------------------------------------------------------------------------------
 #  STATIONS PART
@@ -107,12 +107,25 @@ taptool = bk.models.TapTool()
 base_map.add_tools(taptool)
 
 #Creating a button for info vis in new table
-show_button = bk.models.widgets.Button(label="Show information of selection", button_type="success")
-mainplot = plt.figure(plot_height=400, plot_width=400, title="main plot",
+
+
+button_labels = ["Temperature", "Humidity", "Rain", "Unicorns"]
+button_group = bk.models.widgets.RadioButtonGroup(labels=button_labels, active=0)
+#Creating the main plot for visualization
+mainplot = plt.figure(title="main plot",#plot_height=400, plot_width=400, title="main plot",
+                tools="crosshair,pan,reset,save,wheel_zoom")
+mainplot_2 = plt.figure(title="main plot 2",
                 tools="crosshair,pan,reset,save,wheel_zoom")
 mainplot.scatter('x', 'y', source=tabsource, name = 'line1')
 
 # Create the dropdown menu for different regions
+
+stat_menu = bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'], width = 200)
+stat_menu_2 = bk.models.widgets.Select(title="Something else -- Select ...", value="None",options=['All']+region_names+['None'], width = 200)
+# Create sliders
+slider_start = bk.models.widgets.Slider(start=1900, end=2018, value=1, step=1, title="Start year of historical data:", width = 200)
+slider_end = bk.models.widgets.Slider(start=1900, end=2018, value=1, step=1, title="End year of historical data:", width=200)
+
 
 city_names = ['Berlin','Hamburg','Munich','Cologne','Frankfurt am Main']
 
@@ -195,7 +208,20 @@ statcircles.data_source.on_change('selected', update_when_selected)
 # -----------------------------------------------------------------------------------------------------
 
 # Save layout (map, widgets, description text etc.) and add to current document for successful update of page
-layout = bk.layouts.layout([
-                        [[bk.layouts.widgetbox([desc,stat_menu,stat_table], sizing_mode='stretch_both'),bk.layouts.Spacer(),mainplot],base_map]],
-                        sizing_mode='stretch_both')
+
+
+#layout = bk.layouts.layout(desc, [stat_menu, stat_table, base_map])
+#child_1 = [bk.layouts.widgetbox([desc,stat_menu,stat_table], sizing_mode='stretch_both'),bk.layouts.Spacer(height = 10),button_group,mainplot]
+
+#layout = bk.layouts.layout([[child_1,bk.layouts.Spacer(width = 10),base_map]],sizing_mode='stretch_both')
+spacer_1 = bk.layouts.Spacer(width=10, height=100)
+spacer_2 = bk.layouts.Spacer(width=10, height=100)
+spacer_3 = bk.layouts.Spacer(width=10, height=100)
+
+MODE = 'scale_width' #"scale_width", "scale_height", "scale_both"
+row_desc = bk.layouts.row([desc], sizing_mode=MODE)
+widgets = bk.layouts.column([stat_menu,stat_menu_2,slider_start, slider_end, button_group], sizing_mode=MODE)
+row_show = bk.layouts.row([widgets, base_map, mainplot, mainplot_2],sizing_mode=MODE)
+layout = bk.layouts.column([row_desc, row_show], sizing_mode = MODE)
+
 bk.io.curdoc().add_root(layout)
