@@ -7,7 +7,12 @@ import numpy as np
 import bokeh as bk
 import bokeh.plotting as plt
 from os.path import dirname, join
+import sys
+sys.path.append('./map/plotting_2018')
+import query_plotting as qp
+import database as db
 
+db.set_up_connection(db.db,'db_weather',user='webscrapers',password='bCCnw3b')
 
 # Read the html file for the description
 desc = bk.models.Div(text=open(join(dirname(__file__), "title.html")).read(), width=800)
@@ -96,6 +101,7 @@ df_stations['region'] = [r.replace('\n', '') for r in df_stations['region']]
 
 # Add dot plot on top of the base map to represent stations (initially empty)
 psource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
+p2source = bk.models.ColumnDataSource(data=dict(x=[], y=[]))
 #full_tabsource = bk.models.ColumnDataSource(data=dict(name=stationnames, x=stat_lats, y=stat_lons))
 tabsource = bk.models.ColumnDataSource(data=dict(name=[], x=[], y=[]))
 statcircles = base_map.circle('x', 'y', source=psource, color='red', size=6)
@@ -109,25 +115,26 @@ base_map.add_tools(taptool)
 #Creating a button for info vis in new table
 
 
-button_labels = ["Temperature", "Humidity", "Rain", "Unicorns"]
+button_labels = ['max temperature','min temperature','humidity','snow_depth','mean temperature']
 button_group = bk.models.widgets.RadioButtonGroup(labels=button_labels, active=0)
 #Creating the main plot for visualization
 mainplot = plt.figure(title="main plot",#plot_height=400, plot_width=400, title="main plot",
                 tools="crosshair,pan,reset,save,wheel_zoom")
 mainplot_2 = plt.figure(title="main plot 2",
-                tools="crosshair,pan,reset,save,wheel_zoom")
+                tools="crosshair,pan,reset,save,xwheel_zoom",x_axis_type='datetime')
 mainplot.scatter('x', 'y', source=tabsource, name = 'line1')
+mainplot_2.line('x','y',source = p2source, name='Historic Data')
 
 # Create the dropdown menu for different regions
 
 region_names = df_stations["region"][1:].value_counts().index.tolist()
 
 
-stat_menu = bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'], width = 200)
-stat_menu_2 = bk.models.widgets.Select(title="Something else -- Select ...", value="None",options=['All']+region_names+['None'], width = 200)
+#stat_menu = bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'], width = 200)
+stat_menu_2 = bk.models.widgets.Select(title="Stations -- Select a region", value="None",options=['All']+region_names+['None'], width = 200)
 # Create sliders
-slider_start = bk.models.widgets.Slider(start=1900, end=2018, value=1, step=1, title="Start year of historical data:", width = 200)
-slider_end = bk.models.widgets.Slider(start=1900, end=2018, value=1, step=1, title="End year of historical data:", width=200)
+slider_start = bk.models.widgets.Slider(start=1900, end=2018, value=2017, step=1, title="Start year of historical data:", width = 200)
+slider_end = bk.models.widgets.Slider(start=1900, end=2018, value=2018, step=1, title="End year of historical data:", width=200)
 
 
 city_names = ['Berlin','Hamburg','Munich','Cologne','Frankfurt am Main']
@@ -174,6 +181,12 @@ def update_stations(attr,old,new):
 )
     tabsource.data.update(psource.data)
 
+def update_plot(attr,old,new):
+    df2 = qp.query_for_plot(str(slider_start.value),str(slider_end.value),button_labels[button_group.active],stat_menu.value)
+    p2source.data= dict(
+        x = df2['dates'].tolist(),
+        y = df2[button_labels[button_group.active]].tolist())
+
 def update_when_selected(attr, old, new):
     inds = np.array(new['1d']['indices'])
     #For now I just print the coordinates of selected stations
@@ -204,6 +217,9 @@ def update_when_selected(attr, old, new):
 # Update dot plots on map
 #show_button.on_click(show_info)
 stat_menu.on_change('value',update_stations)
+stat_menu.on_change('value',update_plot)
+slider_start.on_change('value',update_plot)
+button_group.on_change('active',update_plot)
 statcircles.data_source.on_change('selected', update_when_selected)
 #statcircles.data_source.on_change('selected', show_info)
 # -----------------------------------------------------------------------------------------------------
